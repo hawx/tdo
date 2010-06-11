@@ -4,6 +4,7 @@ module Todo
   TODO_FILE = File.expand_path "~/.todo.txt"
   
   # Reads the TODO file
+  #
   def self.read_tasks
     File.new(TODO_FILE, "r").read
   end
@@ -21,6 +22,10 @@ module Todo
     f.puts to_s(t)
   end
   
+  # Marks the selected item as done
+  #
+  # @param [String, Integer] task to mark as done
+  # @param [String] group that the task belongs to
   def self.mark_done( id, group='ungrouped' )
     t = to_hash( self.read_tasks )
     
@@ -38,6 +43,8 @@ module Todo
     f.puts to_s(t)
   end
   
+  # Deletes all items which have been marked done
+  #
   def self.clear_done_items
     t = to_hash( self.read_tasks )
     t.each do |group, tasks|

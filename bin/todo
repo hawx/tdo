@@ -3,7 +3,6 @@
 require File.join( File.dirname(__FILE__), '..', 'lib', 'todo' )
 require 'optparse'
 
-method = nil
 opts = OptionParser.new do |opts|
 
   opts.on("--read", "-r", "Read tasks") do
@@ -22,16 +21,10 @@ opts = OptionParser.new do |opts|
     exit 0
   end
   
-  opts.on("--version", "Show version") do
-    p '0.0.0'
-    exit 0
-  end
-  
 end
 opts.parse!
 
 
-# then a new task should be added
 if ARGV.size == 2
   Todo.add_task(ARGV[1], ARGV[0][1..-1])
 elsif ARGV.size == 1
