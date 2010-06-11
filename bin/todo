@@ -21,6 +21,11 @@ opts = OptionParser.new do |opts|
     exit 0
   end
   
+  opts.on("--version", "Show version") do
+    puts "Todo: #{File.read( File.join(File.dirname(__FILE__), '..', 'VERSION') )}"
+    exit 0
+  end
+  
 end
 opts.parse!
 
