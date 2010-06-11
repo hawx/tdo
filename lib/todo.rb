@@ -5,8 +5,15 @@ module Todo
   
   # Reads the TODO file
   #
-  def self.read_tasks
-    File.new(TODO_FILE, "r").read
+  # @param [String] group to read tasks from
+  # @return [String] the tasks
+  def self.read_tasks( group=nil )
+    unless group
+      File.new(TODO_FILE, "r").read
+    else
+      t = File.new(TODO_FILE, "r").read
+      to_s( to_hash(t)[ group[1..-1] ] )
+    end
   end
   
   # Allows you to add a new task to the file
@@ -28,12 +35,15 @@ module Todo
   # @param [String] group that the task belongs to
   def self.mark_done( id, group='ungrouped' )
     t = to_hash( self.read_tasks )
-    
     if id.is_a? String
-      t[group].each_with_index do |task, i|
-        if task.include? id
-          t[group][i] += ' #done'
+      begin
+        t[group].each_with_index do |task, i|
+          if task.include? id
+            t[group][i] += ' #done'
+          end
         end
+      rescue
+        p "Group, #{group}, does not exist"
       end
     elsif id.is_a? Integer
       t[group][id] += ' #done'
@@ -45,7 +55,7 @@ module Todo
   
   # Deletes all items which have been marked done
   #
-  def self.clear_done_items
+  def self.clear_done
     t = to_hash( self.read_tasks )
     t.each do |group, tasks|
       tasks.delete_if {|i| i.include? ' #done' }
@@ -81,6 +91,9 @@ module Todo
   # @param [Hash] hash of todo tasks
   # @return [String] string representation of hash
   def self.to_s( hash )
+    if !hash.is_a? Hash
+      hash = {'ungrouped' => hash}
+    end
     r = ""
     hash.each do |group, tasks|
       if group == 'ungrouped'
@@ -98,6 +111,3 @@ module Todo
   end
 
 end
-
-#puts Todo.read_tasks
-#Todo.add_task("a new task")
