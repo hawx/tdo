@@ -11,13 +11,14 @@ opts = OptionParser.new do |opts|
     exit 0
   end
 
-  opts.on("--done", "-d", "Mark item as done") do
-    method = :done
+  opts.on("--done item", "-d", "Mark item as done") do |item|
+    item = item.to_i if Float(item)
+    Todo.mark_done(item)
     exit 0
   end
   
   opts.on("--clear", "-c", "Clear done items") do
-    method = :clear
+    Todo.clear_done_items
     exit 0
   end
   

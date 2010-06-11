@@ -21,16 +21,31 @@ module Todo
     f.puts to_s(t)
   end
   
-  def self.mark_done( id )
+  def self.mark_done( id, group='ungrouped' )
+    t = to_hash( self.read_tasks )
     
+    if id.is_a? String
+      t[group].each_with_index do |task, i|
+        if task.include? id
+          t[group][i] += ' #done'
+        end
+      end
+    elsif id.is_a? Integer
+      t[group][id] += ' #done'
+    end
+    
+    f = File.new(TODO_FILE, "w")
+    f.puts to_s(t)
   end
   
-  def self.delete_task( id )
-  
-  end
-  
-  def self.clear_done
-  
+  def self.clear_done_items
+    t = to_hash( self.read_tasks )
+    t.each do |group, tasks|
+      tasks.delete_if {|i| i.include? ' #done' }
+    end
+    
+    f = File.new(TODO_FILE, "w")
+    f.puts to_s(t)
   end
   
   
