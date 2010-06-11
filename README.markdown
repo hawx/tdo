@@ -1,4 +1,4 @@
-# Todo
+# Tdo
 
 A simple ruby app that can edit and read a todo list.
 

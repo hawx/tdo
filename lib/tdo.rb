@@ -1,5 +1,5 @@
 
-module Todo
+module Tdo
 
   TODO_FILE = File.expand_path "~/.todo.txt"
   

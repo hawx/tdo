@@ -4,11 +4,11 @@ require 'rake'
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
-    gem.name = "todo"
-    gem.summary = %Q{Todo, a simple ruby app to manage your todo list}
-    gem.description = %Q{Todo is a simple ruby app to add, edit and read your todo list. It stores the list at ~/.todo.txt}
+    gem.name = "tdo"
+    gem.summary = %Q{Tdo, a simple ruby app to manage your todo list}
+    gem.description = %Q{Tdo is a simple ruby app to add, edit and read your todo list. It stores the list at ~/.todo.txt}
     gem.email = "m@hawx.me"
-    gem.homepage = "http://github.com/hawx/todo"
+    gem.homepage = "http://github.com/hawx/tdo"
     gem.authors = ["Joshua Hawxwell"]
     gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings

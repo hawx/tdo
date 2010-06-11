@@ -1,40 +1,38 @@
 #!/usr/bin/env ruby
 
-require File.join( File.dirname(__FILE__), '..', 'lib', 'todo' )
+require File.join( File.dirname(__FILE__), '..', 'lib', 'tdo' )
 require 'optparse'
 
 banner = <<EOS
-  Usage: todo [options]
-         todo @group "task"
+  Usage: tdo [options]
+         tdo @group "task"
 EOS
 
 opts = OptionParser.new do |opts|
   opts.banner = banner
   opts.on("--read [group]", "-r", "Read tasks") do |group|
-    puts Todo.read_tasks( group )
+    puts Tdo.read_tasks( group )
     exit 0
   end
 
   opts.on("--done", "-d", "Mark item as done, in group (optional)") do
     if ARGV.size == 2
       item = ARGV[1].to_i if Float(ARGV[1]) rescue item = ARGV[1]
-      Todo.mark_done(item, ARGV[0])
+      Tdo.mark_done(item, ARGV[0])
     elsif ARGV.size == 1
       item = ARGV[0].to_i if Float(ARGV[0]) rescue item = ARGV[0]
-      Todo.mark_done(item)
+      Tdo.mark_done(item)
     end
-    
-    #Todo.mark_done(item, ARGV)
     exit 0
   end
   
   opts.on("--clear", "-c", "Clear done items") do
-    Todo.clear_done
+    Tdo.clear_done
     exit 0
   end
   
   opts.on("--version", "Show version") do
-    puts "Todo: #{File.read( File.join(File.dirname(__FILE__), '..', 'VERSION') )}"
+    puts "Tdo: #{File.read( File.join(File.dirname(__FILE__), '..', 'VERSION') )}"
     exit 0
   end
   
@@ -43,9 +41,9 @@ opts.parse!
 
 
 if ARGV.size == 2
-  Todo.add_task(ARGV[1], ARGV[0][1..-1])
+  Tdo.add_task(ARGV[1], ARGV[0][1..-1])
 elsif ARGV.size == 1
-  Todo.add_task(ARGV[0])
+  Tdo.add_task(ARGV[0])
 else
-  puts "Run todo -h for help"
+  puts "Run tdo -h for help"
 end
