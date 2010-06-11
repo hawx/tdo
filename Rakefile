@@ -5,7 +5,7 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "todo"
-    gem.summary = %Q{Todo a simple ruby app to manage your todo list}
+    gem.summary = %Q{Todo, a simple ruby app to manage your todo list}
     gem.description = %Q{Todo is a simple ruby app to add, edit and read your todo list. It stores the list at ~/.todo.txt}
     gem.email = "m@hawx.me"
     gem.homepage = "http://github.com/hawx/todo"
