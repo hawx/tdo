@@ -21,7 +21,11 @@ module Tdo
   # @param [String] task to add
   # @param [String] group to add the task to
   def self.add_task( task, group='ungrouped' )
-    t = to_hash( self.read_tasks )
+    if File.exists? TODO_FILE
+      t = to_hash( self.read_tasks ) 
+    else
+      t = {}
+    end
     t[group] ||= [] # need to create new group if it doesn't exist
     t[group] << task.strip
     

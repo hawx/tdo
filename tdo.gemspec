@@ -27,6 +27,7 @@ Gem::Specification.new do |s|
      "VERSION",
      "bin/tdo",
      "lib/tdo.rb",
+     "tdo.gemspec",
      "test/helper.rb",
      "test/test_tdo.rb"
   ]
