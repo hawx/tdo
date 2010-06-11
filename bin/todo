@@ -1,0 +1,38 @@
+#!/usr/bin/env ruby
+
+require File.join( File.dirname(__FILE__), '..', 'lib', 'todo' )
+require 'optparse'
+
+method = nil
+opts = OptionParser.new do |opts|
+
+  opts.on("--read", "-r", "Read tasks") do
+    puts Todo.read_tasks
+    exit 0
+  end
+
+  opts.on("--done", "-d", "Mark item as done") do
+    method = :done
+    exit 0
+  end
+  
+  opts.on("--clear", "-c", "Clear done items") do
+    method = :clear
+    exit 0
+  end
+  
+  opts.on("--version", "Show version") do
+    p '0.0.0'
+    exit 0
+  end
+  
+end
+opts.parse!
+
+
+# then a new task should be added
+if ARGV.size == 2
+  Todo.add_task(ARGV[1], ARGV[0][1..-1])
+elsif ARGV.size == 1
+  Todo.add_task(ARGV[0])
+end

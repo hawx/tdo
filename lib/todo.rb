@@ -41,7 +41,7 @@ module Todo
   def self.to_hash( s )
     r = {'ungrouped' => []}
     last_group ||= ''
-    s.each do |l|
+    s.split("\n").each do |l|
       if l[0] == '@'
         last_group = l[1..-1].strip
         r[last_group] = []
@@ -77,5 +77,5 @@ module Todo
 
 end
 
-puts Todo.read_tasks
+#puts Todo.read_tasks
 #Todo.add_task("a new task")
