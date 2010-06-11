@@ -34,6 +34,8 @@ module Todo
   # @param [String, Integer] task to mark as done
   # @param [String] group that the task belongs to
   def self.mark_done( id, group='ungrouped' )
+    group = group[1..-1]
+  
     t = to_hash( self.read_tasks )
     if id.is_a? String
       begin
