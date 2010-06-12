@@ -1,6 +1,8 @@
 
 module Tdo
 
+  class InvalidGroup < ArgumentError; end
+
   TODO_FILE = File.expand_path "~/.todo.txt"
   
   # Reads the TODO file
@@ -16,61 +18,84 @@ module Tdo
     end
   end
   
+  # Gives a summary of remaining tasks
+  #
+  # @return [String] summary of tasks
+  def self.task_summary
+    t = to_hash( self.read_tasks )
+    groups = t.size
+    tasks = t.inject(0) {|sum, t| sum += t[1].size}
+    done = t.inject(0) {|sum, t| sum += t[1].delete_if {|i| !i.include? ' #done' }.size}
+    "#{tasks} tasks in #{groups} groups, #{done} done"
+  end
+  
   # Allows you to add a new task to the file
   #
   # @param [String] task to add
   # @param [String] group to add the task to
-  def self.add_task( task, group='ungrouped' )
+  def self.add_task( task, group='@ungrouped' )
     if File.exists? TODO_FILE
       t = to_hash( self.read_tasks ) 
     else
       t = {}
     end
+    if group[0] == "@"
+      group = group[1..-1] 
+    else
+      raise InvalidGroup, "'#{group}' is not a valid group name", caller
+    end
     t[group] ||= [] # need to create new group if it doesn't exist
     t[group] << task.strip
     
-    f = File.new(TODO_FILE, "w")
-    f.puts to_s(t)
+    write_hash t
   end
   
   # Marks the selected item as done
   #
   # @param [String, Integer] task to mark as done
   # @param [String] group that the task belongs to
-  def self.mark_done( id, group='ungrouped' )
-    group = group[1..-1]
+  def self.mark_done( id, group='@ungrouped' )
+    if group[0] == "@"
+      group = group[1..-1] 
+    else
+      raise InvalidGroup, "'#{group}' is not a valid group name", caller
+    end
   
     t = to_hash( self.read_tasks )
-    if id.is_a? String
-      begin
-        t[group].each_with_index do |task, i|
-          if task.include? id
-            t[group][i] += ' #done'
-          end
+    if id.is_a? String      
+      t[group].each_with_index do |task, i|
+        if task.include? id
+          t[group][i] += ' #done'
         end
-      rescue
-        p "Group, #{group}, does not exist"
       end
     elsif id.is_a? Integer
       t[group][id] += ' #done'
     end
-    
-    f = File.new(TODO_FILE, "w")
-    f.puts to_s(t)
+    write_hash t
   end
+  
   
   # Deletes all items which have been marked done
   #
+  # @return [Integer] number of tasks cleared
   def self.clear_done
     t = to_hash( self.read_tasks )
+    r = 0
     t.each do |group, tasks|
-      tasks.delete_if {|i| i.include? ' #done' }
+      s = tasks.size
+      r += tasks.delete_if {|i| i.include? ' #done' }.size - s
     end
-    
-    f = File.new(TODO_FILE, "w")
-    f.puts to_s(t)
+    write_hash t
+    r
   end
   
+  # Converts the given hash to a string and writes to the TODO_FILE
+  #
+  # @param [Hash] tasks hash to write
+  def self.write_hash( hash )
+    f = File.new(TODO_FILE, "w")
+    f.puts to_s( hash )
+  end
   
   # Converts the string read from the file to a hash so it can easily be used
   #
