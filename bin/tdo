@@ -45,5 +45,5 @@ if ARGV.size == 2
 elsif ARGV.size == 1
   Tdo.add_task(ARGV[0])
 else
-  puts "Run tdo -h for help"
+  puts Tdo.read_tasks
 end
