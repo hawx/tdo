@@ -29,7 +29,8 @@ Gem::Specification.new do |s|
      "lib/tdo.rb",
      "tdo.gemspec",
      "test/helper.rb",
-     "test/test_tdo.rb"
+     "test/test_tdo.rb",
+     "test/todo.txt"
   ]
   s.homepage = %q{http://github.com/hawx/tdo}
   s.rdoc_options = ["--charset=UTF-8"]
