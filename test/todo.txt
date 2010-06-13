@@ -1,0 +1,7 @@
+- A task
+
+@group
+ - Another task
+
+@home
+ - Another group

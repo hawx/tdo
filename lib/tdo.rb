@@ -93,8 +93,7 @@ module Tdo
   #
   # @param [Hash] tasks hash to write
   def self.write_hash( hash )
-    f = File.new(TODO_FILE, "w")
-    f.puts to_s( hash )
+    File.open(TODO_FILE, "w") {|f| f.write( to_s(hash) )}
   end
   
   # Converts the string read from the file to a hash so it can easily be used
