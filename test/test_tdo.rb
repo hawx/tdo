@@ -50,4 +50,14 @@ class TestTdo < Test::Unit::TestCase
     assert_equal Tdo.read_tasks('@group'), "- Another task\n"
   end
   
+  should "remove group when all tasks are cleared" do
+    clear_todo
+    Tdo.mark_done(0, '@home')
+    Tdo.clear_done
+    
+    assert_raise Tdo::InvalidGroup do
+      Tdo.read_tasks('@home') 
+    end
+  end
+  
 end

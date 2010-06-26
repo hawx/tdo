@@ -1,4 +1,3 @@
-
 module Tdo
 
   class InvalidGroup < ArgumentError; end
@@ -14,6 +13,7 @@ module Tdo
       File.new(TODO_FILE, "r").read
     else
       t = File.new(TODO_FILE, "r").read
+      raise InvalidGroup, "'#{group}' is not a valid group name", caller unless self.group?(group) 
       to_s( to_hash(t)[ group[1..-1] ] )
     end
   end
@@ -85,6 +85,7 @@ module Tdo
       s = tasks.size
       r += tasks.delete_if {|i| i.include? ' #done' }.size - s
     end
+    t.delete_if {|k, v| v == [] }
     write_hash t
     r
   end
@@ -94,6 +95,16 @@ module Tdo
   # @param [Hash] tasks hash to write
   def self.write_hash( hash )
     File.open(TODO_FILE, "w") {|f| f.write( to_s(hash) )}
+  end
+  
+  
+  # Tests whether the group exists
+  #
+  # @param [String] group name
+  # @return [Boolean] whether the group exists
+  def self.group?( name )
+    t = to_hash( self.read_tasks )
+    t.has_key?(name[1..-1])
   end
   
   # Converts the string read from the file to a hash so it can easily be used
