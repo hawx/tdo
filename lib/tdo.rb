@@ -3,20 +3,147 @@ module Tdo
   class InvalidGroup < ArgumentError; end
   
   # If using ENV, path must be absolute
-  TODO_FILE = File.expand_path(ENV['TDO_FILE']) || File.expand_path("~/.todo.txt")
+  TODO_FILE = ENV['TDO_FILE'] || File.expand_path("~/.todo.txt")
+  
+  class Tasks
+    
+    attr_accessor :items
+    
+    def initialize
+      @items = {'ungrouped' => []}
+      # @items = {'group' => ['tasks', 'tasks']}
+    end
+    
+    def mark_done(id, group=nil)
+      group = Tdo.get_group(group) unless group.nil?
+      Tdo.group?(group)
+      
+      if id.is_a? Integer
+        if group
+          t[group][id] += ' #done'
+        else
+          # should really count across groups, another time
+          t['ungrouped'][id] += ' #done'
+        end
+      elsif id.is_a? String
+        ts = find(id, group)
+        ts.collect {|t| t += ' #done' }
+      else
+        # error
+        return false
+      end
+      true
+    end
+    
+    
+    # Marks the selected item as done
+    #
+    # @param [String, Integer] task to mark as done
+    # @param [String] group that the task belongs to
+    def self.mark_done( id, group='@ungrouped' )
+      group = get_group(group)
+      self.group?(group) 
+    
+      t = to_hash( self.read_tasks )
+      if id.is_a? String      
+        t[group].each_with_index do |task, i|
+          if task.include? id
+            t[group][i] += ' #done'
+          end
+        end
+      elsif id.is_a? Integer
+        t[group][id] += ' #done'
+      end
+      write_hash t
+    end
+    
+    def clear
+      r = 0
+      @items.each do |g, ts|
+        s = ts.size
+        r += tasks.delete_if {|i| i.include?(' #done') }.size -s
+      end
+      @items.delete_if {|g, ts| ts == [] }
+      r
+    end
+    
+    
+    # Deletes all items which have been marked done
+    #
+    # @return [Integer] number of tasks cleared
+    def self.clear_done
+      t = to_hash( self.read_tasks )
+      r = 0
+      t.each do |group, tasks|
+        s = tasks.size
+        r += tasks.delete_if {|i| i.include? ' #done' }.size - s
+      end
+      t.delete_if {|k, v| v == [] }
+      write_hash t
+      r
+    end
+    
+    
+    # Finds tasks which contain the string to look for
+    #
+    # @param [String] arg string to look for
+    # @param [String] group to look within
+    # @return [Array] task(s) that are found
+    # @todo find within group
+    def find(str, group=nil)
+      r = []
+      @items.each do |g, ts|
+        ts.each do |t|
+          r << t if t.include?(str)
+        end
+      end
+      r
+    end
+    
+    
+    # Converts the tasks to a string which can then be written to a file
+    #
+    # @param [String] group
+    # @return [String] string representation of tasks
+    def to_s(group=nil)
+      r = ''
+      if group
+        group = Tdo.get_group(group)
+        @items[group].each do |t|
+          r += "- #{t}\n"
+        end
+      else
+        @items.each do |g, ts|
+          if g == 'ungrouped'
+            ts.each do |t|
+              r += "- #{t}\n"
+            end
+          else
+            ts.each do |t|
+              r += " - #{t}\n"
+            end
+          end
+        end
+      end
+      r
+    end
+  
+  end
   
   # Reads the TODO file
   #
   # @param [String] group to read tasks from
   # @return [String] the tasks
   def self.read_tasks( group=nil )
+    t = File.new(TODO_FILE, "r").read
+    to_hash(t)
     unless group
       File.new(TODO_FILE, "r").read
     else
       t = File.new(TODO_FILE, "r").read
       group = get_group(group)
-      self.group?(group)
-      to_s( to_hash(t)[group] )
+      #group?(group)
+      to_hash(t).to_s(group)
     end
   end
   
@@ -50,42 +177,6 @@ module Tdo
     write_hash t
   end
   
-  # Marks the selected item as done
-  #
-  # @param [String, Integer] task to mark as done
-  # @param [String] group that the task belongs to
-  def self.mark_done( id, group='@ungrouped' )
-    group = get_group(group)
-    self.group?(group) 
-  
-    t = to_hash( self.read_tasks )
-    if id.is_a? String      
-      t[group].each_with_index do |task, i|
-        if task.include? id
-          t[group][i] += ' #done'
-        end
-      end
-    elsif id.is_a? Integer
-      t[group][id] += ' #done'
-    end
-    write_hash t
-  end
-  
-  
-  # Deletes all items which have been marked done
-  #
-  # @return [Integer] number of tasks cleared
-  def self.clear_done
-    t = to_hash( self.read_tasks )
-    r = 0
-    t.each do |group, tasks|
-      s = tasks.size
-      r += tasks.delete_if {|i| i.include? ' #done' }.size - s
-    end
-    t.delete_if {|k, v| v == [] }
-    write_hash t
-    r
-  end
   
   # Converts the given hash to a string and writes to the TODO_FILE
   #
@@ -117,70 +208,27 @@ module Tdo
     end
   end
   
-  # Finds tasks which contain the string to look for
-  #
-  # @param [String] arg string to look for
-  # @param [String] group to look within
-  # @return [Array] task(s) that are found
-  def self.find_tasks( arg, group=nil )
-    t = to_hash( self.read_tasks )
-    r = []
-    if group
-      t[ get_group(group) ].each do |i|
-        r << i if i.include? arg
-      end
-    else
-      t.each do |k, v|
-        v.each do |i|
-          r << i if i.include? arg
-        end
-      end
-    end
-    r
-  end
-  
   # Converts the string read from the file to a hash so it can easily be used
   #
   # @param [String] read file string
   # @return [Hash] the string as a hash
   def self.to_hash( s )
-    r = {'ungrouped' => []}
-    last_group ||= ''
+    @tasks = Tasks.new
+    _group = ''
     s.split("\n").each do |l|
-      if l[0] == '@'
-        last_group = l[1..-1].strip
-        r[last_group] = []
-      elsif l[1] == '-'
-        r[last_group] << l[2..-1].strip
-      elsif l[0] == '-'
-        r['ungrouped']  << l[1..-1].strip
+      if l[0] == '-'
+        @tasks.items['ungrouped'] << l[1..-1].strip
+      elsif l[0] == '@'
+        _group = l[1..-1].strip
+        @tasks.items[_group] = []
+      elsif l[0..1] == ' -'
+        @tasks.items[_group] << l[2..-1].strip
       end
     end
-    r
-  end
-  
-  # Converts the given hash to a string which can then be written to a file
-  #
-  # @param [Hash] hash of todo tasks
-  # @return [String] string representation of hash
-  def self.to_s( hash )
-    if !hash.is_a? Hash
-      hash = {'ungrouped' => hash}
-    end
-    r = ""
-    hash.each do |group, tasks|
-      if group == 'ungrouped'
-        tasks.each do |task|
-          r += "- #{task}\n"
-        end
-      else
-        r += "\n@#{group}\n"
-        tasks.each do |task|
-          r += " - #{task}\n"
-        end
-      end
-    end
-    r
+    @tasks
   end
 
 end
+
+
+puts Tdo.read_tasks
