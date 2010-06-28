@@ -1,8 +1,9 @@
 module Tdo
 
   class InvalidGroup < ArgumentError; end
-
-  TODO_FILE = File.expand_path "~/.todo.txt"
+  
+  # If using ENV, path must be absolute
+  TODO_FILE = File.expand_path(ENV['TDO_FILE']) || File.expand_path("~/.todo.txt")
   
   # Reads the TODO file
   #
