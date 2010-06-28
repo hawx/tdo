@@ -13,8 +13,9 @@ module Tdo
       File.new(TODO_FILE, "r").read
     else
       t = File.new(TODO_FILE, "r").read
-      raise InvalidGroup, "'#{group}' is not a valid group name", caller unless self.group?(group) 
-      to_s( to_hash(t)[ group[1..-1] ] )
+      group = get_group(group)
+      self.group?(group)
+      to_s( to_hash(t)[group] )
     end
   end
   
@@ -23,7 +24,7 @@ module Tdo
   # @return [String] summary of tasks
   def self.task_summary
     t = to_hash( self.read_tasks )
-    groups = t.size
+    groups = t.size-1
     tasks = t.inject(0) {|sum, t| sum += t[1].size}
     done = t.inject(0) {|sum, t| sum += t[1].delete_if {|i| !i.include? ' #done' }.size}
     "#{tasks} tasks in #{groups} groups, #{done} done"
@@ -39,11 +40,9 @@ module Tdo
     else
       t = {}
     end
-    if group[0] == "@"
-      group = group[1..-1] 
-    else
-      raise InvalidGroup, "'#{group}' is not a valid group name", caller
-    end
+    group = get_group(group)
+    self.group?(group)
+    
     t[group] ||= [] # need to create new group if it doesn't exist
     t[group] << task.strip
     
@@ -55,11 +54,8 @@ module Tdo
   # @param [String, Integer] task to mark as done
   # @param [String] group that the task belongs to
   def self.mark_done( id, group='@ungrouped' )
-    if group[0] == "@"
-      group = group[1..-1] 
-    else
-      raise InvalidGroup, "'#{group}' is not a valid group name", caller
-    end
+    group = get_group(group)
+    self.group?(group) 
   
     t = to_hash( self.read_tasks )
     if id.is_a? String      
@@ -104,7 +100,42 @@ module Tdo
   # @return [Boolean] whether the group exists
   def self.group?( name )
     t = to_hash( self.read_tasks )
-    t.has_key?(name[1..-1])
+    if t.has_key?( get_group(name) )
+      true
+    else
+      raise InvalidGroup, "'#{group}' is not a valid group name", caller
+    end
+  end
+  
+  # Takes the groups name from a string
+  def self.get_group( str )
+    if str[0] == '@'
+      return str[1..-1]
+    else
+      return str
+    end
+  end
+  
+  # Finds tasks which contain the string to look for
+  #
+  # @param [String] arg string to look for
+  # @param [String] group to look within
+  # @return [Array] task(s) that are found
+  def self.find_tasks( arg, group=nil )
+    t = to_hash( self.read_tasks )
+    r = []
+    if group
+      t[ get_group(group) ].each do |i|
+        r << i if i.include? arg
+      end
+    else
+      t.each do |k, v|
+        v.each do |i|
+          r << i if i.include? arg
+        end
+      end
+    end
+    r
   end
   
   # Converts the string read from the file to a hash so it can easily be used
