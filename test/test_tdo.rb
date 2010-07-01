@@ -1,63 +1,70 @@
 require 'helper'
 
 class TestTdo < Test::Unit::TestCase
-  
+
   should "read tasks" do
     clear_todo
-    assert_equal Tdo.read_tasks, file_text
+    t = Tdo::Tasks.new
+    assert_equal t.to_s, file_text
   end
   
   should "read tasks from specific group" do
     clear_todo
-    assert_equal Tdo.read_tasks('@home'), "- Another group\n"
+    assert_equal "- Another group\n", Tdo::Tasks.new.to_s('@home')
   end
 
   should "add new task" do
     clear_todo
-    b = Tdo.read_tasks
-    Tdo.add_task("Pick up milk")
-
-    assert_equal Tdo.read_tasks.size, b.size + " - Pick up milk".size
+    t = Tdo::Tasks.new
+    b = t.to_s
+    t.add("Pick up milk")
+    
+    assert_equal b.size + " - Pick up milk".size, t.to_s.size
   end
   
   should "add new task to group" do
     clear_todo
-    Tdo.add_task('Pick up milk', '@test')
+    t = Tdo::Tasks.new
+    t.add('Pick up milk', '@test')
     
-    assert_equal Tdo.read_tasks('@test').size, " - Pick up milk".size
+    assert_equal " - Pick up milk".size, t.to_s('@test').size
   end
   
   should "mark task as done" do
     clear_todo
-    b = Tdo.read_tasks('@ungrouped').strip
-    Tdo.mark_done('A task', '@ungrouped')
+    t = Tdo::Tasks.new
+    b = t.to_s('@ungrouped').strip
+    t.mark_done('A task', '@ungrouped')
     
-    assert_equal Tdo.read_tasks('@ungrouped'), b + " #done\n"
+    assert_equal b + " #done\n", t.to_s('@ungrouped')
   end
   
   should "mark task at index as done" do
     clear_todo
-    b = Tdo.read_tasks( '@ungrouped').strip
-    Tdo.mark_done(0, '@ungrouped')
+    t = Tdo::Tasks.new
+    b = t.to_s('@ungrouped').strip
+    t.mark_done(0, '@ungrouped')
     
-    assert_equal Tdo.read_tasks('@ungrouped'), b + " #done\n"
+    assert_equal b + " #done\n", t.to_s('@ungrouped')
   end
   
   should "remove all tasks marked done" do
     clear_todo
-    Tdo.clear_done
+    t = Tdo::Tasks.new
+    t.clear
     
-    assert_equal Tdo.read_tasks('@group'), "- Another task\n"
+    assert_equal "- Another task\n", t.to_s('@group')
   end
   
   should "remove group when all tasks are cleared" do
     clear_todo
-    Tdo.mark_done(0, '@home')
-    Tdo.clear_done
+    t = Tdo::Tasks.new
+    t.mark_done(0, '@home')
+    t.clear
     
     assert_raise Tdo::InvalidGroup do
-      Tdo.read_tasks('@home') 
+      t.to_s('@home') 
     end
   end
-  
+
 end

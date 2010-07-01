@@ -27,12 +27,12 @@ opts = OptionParser.new do |opts|
   end
   
   opts.on("--summary", "-s", "Summary") do
-    puts Tdo.task_summary
+    puts Tdo.summary
     exit 0
   end
   
   opts.on("--clear", "-c", "Clear done items") do
-    Tdo.clear_done
+    Tdo.clear
     exit 0
   end
   
@@ -46,9 +46,9 @@ opts.parse!
 
 
 if ARGV.size == 2
-  Tdo.add_task(ARGV[1], ARGV[0])
+  Tdo.add(ARGV[1], ARGV[0])
 elsif ARGV.size == 1
-  Tdo.add_task(ARGV[0])
+  Tdo.add(ARGV[0])
 else
-  puts Tdo.task_summary
+  puts Tdo.summary
 end
