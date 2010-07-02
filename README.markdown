@@ -29,6 +29,14 @@ Mark tasks as done when finished:
 Then clear and forget:
 
     tdo -c
+    
+
+## File Location
+
+You can easily change where the file is stored, so it can be synced with Dropbox or anything else.
+Just add this to your `.bashrc`/`.bash_profile`/`.aliases`/????...
+
+    export TDO_FILE='~/my/path/to/my/todo.txt'
 
 
 ## Copyright
