@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Joshua Hawxwell"]
-  s.date = %q{2010-07-01}
+  s.date = %q{2010-07-02}
   s.default_executable = %q{tdo}
   s.description = %q{Tdo is a simple ruby app to add, edit and read your todo list. It stores the list at ~/.todo.txt}
   s.email = %q{m@hawx.me}

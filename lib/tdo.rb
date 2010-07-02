@@ -3,7 +3,7 @@ module Tdo
   class InvalidGroup < ArgumentError; end
   
   # If using ENV, path must be absolute
-  TODO_FILE = ENV['TDO_FILE'] || File.expand_path("~/.todo.txt")
+  TODO_FILE = (ENV['TDO_FILE'] ? File.expand_path(ENV['TDO_FILE']) : File.expand_path("~/.todo.txt"))
   
   
   # Gives a summary of remaining tasks
@@ -25,7 +25,6 @@ module Tdo
       return str
     end
   end
-  
   
   
   class Tasks
